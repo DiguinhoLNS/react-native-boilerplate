@@ -9,7 +9,8 @@ import Routes from './routes'
 
 const App: React.FC = () => {
 
-    return (
+    return(
+
         <NavigationProvider>
             <ReduxProvider store = {store}>
                 <PaperProvider theme = {theme}>
@@ -18,6 +19,7 @@ const App: React.FC = () => {
                 </PaperProvider>
             </ReduxProvider>
         </NavigationProvider>
+
     )
 
 }

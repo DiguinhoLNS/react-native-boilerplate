@@ -5,13 +5,12 @@ import Section from '@components/Layout/Section'
 import Container from '@components/Layout/Container'
 import FormInput from '@components/Common/Form/components/Input'
 import submitLogin from '@modules/auth/scripts/request/submitLogin'
-import { useAppDispatch, useAppSelector } from '@redux/hooks'
+import { useAppDispatch } from '@redux/hooks'
 import { formLoginValues, formLoginSchema } from './config'
 
 const FormLogin: React.FC = () => {
 
     const dispatch = useAppDispatch()
-    const { requestSubmitLogin } = useAppSelector(s => s.requestAuth)
 
     return(
 
@@ -47,8 +46,6 @@ const FormLogin: React.FC = () => {
                         <Section>
                             <Button
                                 label = "Entrar"
-                                loading = {requestSubmitLogin.loading}
-                                disabled = {requestSubmitLogin.loading}
                                 onPress = {handleSubmit}
                             />
                         </Section>

@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Platform, RefreshControl, StatusBar } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useIsFocused } from '@react-navigation/native'
-import themes from '@styles/themes'
+import { useAppSelector } from '@redux/hooks'
 import toPixel from '@utils/toPixel'
 import { ScreenRenderProps } from './types'
 import { Wrapper } from './styles'
+import { StatusBarProps } from 'react-native'
 
 const Render: React.FC<ScreenRenderProps> = ({
     children,
@@ -20,29 +21,31 @@ const Render: React.FC<ScreenRenderProps> = ({
     statusBarOptions
 }) => {
 
+    const { theme } = useAppSelector(s => s.theme)
+
     const [resfreshLoading, setRefreshLoading] = useState<boolean>(false)
-    const isFocused = useIsFocused()
-
-    const barStyle = useMemo(() => {
-        return statusBarOptions?.barStyle ?? 'dark-content'
-    }, [statusBarOptions])
-
-    const barColor = useMemo(() => {
-        return !!statusBarOptions?.backgroundColor ? statusBarOptions?.backgroundColor : statusBarOptions?.translucent === true ? 'transparent' : wrapperColor ?? '#ffffff'
-    }, [statusBarOptions, wrapperColor])
+    const isFocused = useIsFocused()  
 
     const wrapperBackgroundColor = useMemo(() => {
-        return wrapperColor ?? themes.wrapperColor
-    }, [wrapperColor, themes])
+        return wrapperColor ?? theme.layout.primary
+    }, [wrapperColor, theme])
+
+    const barColor = useMemo(() => {
+        return !!statusBarOptions?.backgroundColor ? statusBarOptions?.backgroundColor : statusBarOptions?.translucent === true ? 'transparent' : wrapperBackgroundColor
+    }, [statusBarOptions, wrapperBackgroundColor])
+
+    const barStyle = useMemo(() => {
+        return statusBarOptions?.barStyle ?? theme.scheme === 'dark-mode' ? 'light-content' : 'dark-content'
+    }, [statusBarOptions, theme])
 
     const refreshColor = useMemo(() => {
-        return loadingColor ?? Platform.OS === 'ios' ? barStyle === 'dark-content' ? [themes.colors.primary] : ['#fff'] : [themes.colors.primary]
+        return loadingColor ?? Platform.OS === 'ios' ? barStyle === 'dark-content' ? [theme.colors.primary] : ['#fff'] : [theme.colors.primary]
     }, [loadingColor, barStyle])
 
-    const statusBarProps = {
+    const statusBarProps: StatusBarProps = {
         barStyle,
         backgroundColor: barColor,
-        animated: statusBarOptions?.animated ?? true,
+        animated: statusBarOptions?.animated ?? false,
         translucent: statusBarOptions?.translucent ?? false,
     }
     

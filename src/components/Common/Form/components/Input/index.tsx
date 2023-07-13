@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { TextInput } from 'react-native-paper'
-import TextInputMask from 'react-native-text-input-mask'
-import themes, { typography } from '@styles/themes'
+import { useAppSelector } from '@redux/hooks'
 import FormLabel from '../Label'
 import { FormInputProps } from './types'
 
@@ -23,6 +22,8 @@ const FormInput: React.FC <FormInputProps> = ({
     onChange
 }) => {
 
+    const { theme } = useAppSelector(s => s.theme)
+
     const inputRef = useRef(null)
     const [showSecure, setShowSecure] = useState<boolean | undefined>(secure)
 
@@ -31,14 +32,14 @@ const FormInput: React.FC <FormInputProps> = ({
         keyboardType: keyboardType ? keyboardType : 'default',
         theme: {
             colors: {
-                primary: themes.colors.primary,
+                primary: theme.colors.primary,
                 background: '#FFFFFF',
                 placeholder: '#6A7178',
-                text: typography.title.normal,
+                text: theme.typography.text.normal,
             },
             roundness: 12,
         },
-        selectionColor: themes.colors.primary,
+        selectionColor: theme.colors.primary,
         outlineColor: '#ADB5BD',
         editable: editable ?? true,
         error: !!error ?? false,
@@ -55,59 +56,31 @@ const FormInput: React.FC <FormInputProps> = ({
 
         <>
             {!!label && <FormLabel label = {label} error = {!!error} />}
-            {mask ? (
-                <TextInput
-                    {...inputProps}
-                    mode = {mode ?? 'outlined'}
-                    //label = {label}
-                    autoCapitalize = 'none'
-                    placeholder = {placeholder}
-                    value = {value}
-                    render = {props => (
-                        <TextInputMask
-                            {...props}
-                            ref = {inputRef}
-                            mask = {mask}
-                            value = {value}
-                            onChangeText = {(formatted, extracted) => {
-                                if(maskReturn === 'formatted'){
-                                    props.onChangeText?.(formatted ?? ''),
-                                    handleChangeText(formatted ?? '')
-                                }else{
-                                    props.onChangeText?.(extracted ?? ''),
-                                    handleChangeText(extracted ?? '')
-                                }
-                            }}
+            <TextInput
+                {...inputProps}
+                mode = {mode ?? 'outlined'}
+                //label = {label}
+                autoCapitalize = 'none'
+                placeholder = {placeholder}
+                value = {value}
+                onChangeText = {text => handleChangeText(text)}
+                right = {
+                    !!right ? right : (!!secure ? (
+                        <TextInput.Icon
+                            icon = "eye-outline"
+                            color = {error ? theme.status.error.primary : showSecure ? '#ADB5BD' : theme.colors.primary}
+                            forceTextInputFocus = {false}
+                            onPress = {() => setShowSecure(!showSecure)}
                         />
-                    )}
-                />
-            ) : (
-                <TextInput
-                    {...inputProps}
-                    mode = {mode ?? 'outlined'}
-                    //label = {label}
-                    autoCapitalize = 'none'
-                    placeholder = {placeholder}
-                    value = {value}
-                    onChangeText = {text => handleChangeText(text)}
-                    right = {
-                        !!right ? right : (!!secure ? (
-                            <TextInput.Icon
-                                name = "eye-outline"
-                                color = {error ? themes.status.error.primary : showSecure ? '#ADB5BD' : themes.colors.primary}
-                                forceTextInputFocus = {false}
-                                onPress = {() => setShowSecure(!showSecure)}
-                            />
-                        ) : !!error ? (
-                            <TextInput.Icon
-                                name = "alert-circle"
-                                color = {themes.status.error.primary}
-                                forceTextInputFocus = {false}
-                            />
-                        ) : null)
-                    }
-                />
-            )}
+                    ) : !!error ? (
+                        <TextInput.Icon
+                        icon = "alert-circle"
+                            color = {theme.status.error.primary}
+                            forceTextInputFocus = {false}
+                        />
+                    ) : null)
+                }
+            />
         </>
 
     )

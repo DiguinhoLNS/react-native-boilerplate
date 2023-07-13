@@ -1,9 +1,11 @@
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { MMKV } from 'react-native-mmkv'
 import info from "../info"
 
-async function getItem<T>(key: string){
+export const mmkv = new MMKV()
+
+function getItem<T>(key: string){
     try {
-        const local = await AsyncStorage.getItem(key)
+        const local = mmkv.getString(key)
         if(!!local) return JSON.parse(local) as T
         else throw new Error(`No data found with key: ${key}`)
     } catch (error) {
@@ -12,25 +14,25 @@ async function getItem<T>(key: string){
     }
 }
 
-async function setItem<T>(key: string, value: T){
+function setItem<T>(key: string, value: T){
     try {
-        await AsyncStorage.setItem(key, JSON.stringify(value))
+        mmkv.set(key, JSON.stringify(value))
     } catch (error) {
         info.error('storage setItem', error)
     }
 }
 
-async function removeItem(key: string){
+function removeItem(key: string){
     try {
-        await AsyncStorage.removeItem(key)
+        mmkv.delete(key)
     } catch (error) {
         info.error('storage removeItem', error)
     }
 }
 
-async function clear(){
+function clear(){
     try {
-        await AsyncStorage.clear()
+        mmkv.clearAll()
     } catch (error) {
         info.error('storage clear', error)
     }
